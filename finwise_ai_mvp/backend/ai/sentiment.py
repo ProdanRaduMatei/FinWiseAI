@@ -1,7 +1,3 @@
-from transformers import pipeline
-
-sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
-
 from textblob import TextBlob
 
 def analyze_sentiment(headlines):
