@@ -2,5 +2,4 @@ fastapi
 uvicorn
 requests
 python-dotenv
-transformers
-torch
+textblob
