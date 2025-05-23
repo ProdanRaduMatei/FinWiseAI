@@ -1,5 +1,7 @@
 fastapi
 uvicorn
 requests
+transformers
+torch
 python-dotenv
-textblob
+yfinance
