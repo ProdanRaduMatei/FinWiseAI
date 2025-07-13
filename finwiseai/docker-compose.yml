@@ -20,6 +20,8 @@ services:
       - MONGO_URI=mongodb://mongo:27017/finwise
     depends_on:
       - mongo
+    env_file:
+      - .env
 
   ml-service:
     build: ./ml-service
@@ -29,6 +31,8 @@ services:
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       - redis
+    env_file:
+      - .env
 
   redis:
     image: redis:7-alpine
