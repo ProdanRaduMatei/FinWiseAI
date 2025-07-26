@@ -23,8 +23,8 @@ services:
     env_file:
       - .env
 
-  ml-service:
-    build: ./ml-service
+  ml_service:
+    build: ml_service
     ports:
       - "5050:5000"
     environment:

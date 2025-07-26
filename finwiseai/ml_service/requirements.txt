@@ -3,7 +3,7 @@ uvicorn
 pandas
 numpy
 scikit-learn
-tensorflow
 shap
 celery
 redis
+torch
