@@ -1,7 +1,9 @@
 from fastapi import FastAPI
-from ..db import db
+from ml_service.db import db
+from ml_service.api.routes import router as ml_router
 
 app = FastAPI()
+app.include_router(ml_router)
 
 @app.get("/ml/ping")
 def ping():

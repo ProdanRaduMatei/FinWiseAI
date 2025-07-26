@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.preprocessing import MinMaxScaler
-from ..models.lstm_model import LSTMStockModel
+from ml_service.models.lstm_model import LSTMStockModel
 
 def load_data(csv_path, sequence_length=50):
     df = pd.read_csv(csv_path)

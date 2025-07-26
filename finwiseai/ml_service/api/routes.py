@@ -1,10 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from finwiseai.ml_service.models.lstm_model import LSTMStockModel
+from ml_service.models.lstm_model import LSTMStockModel
 import torch
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import os
+from ml_service.sentiment.finbert_sentiment import batch_analyze_sentiment
+from ml_service.sentiment.news_fetcher import fetch_stock_news
 
+# Define router ONCE with prefix /ml
 router = APIRouter(prefix="/ml", tags=["LSTM"])
 
 @router.get("/predict")
@@ -33,3 +36,27 @@ def predict_next_close(csv_path: str = "sample_ohlcv_stock_data.csv"):
     predicted_close = pred * (close_max - close_min) + close_min
 
     return {"predicted_close_price": round(predicted_close, 2)}
+
+@router.get("/sentiment/{symbol}")
+def sentiment_analysis(symbol: str):
+    # Fetch news
+    articles = fetch_stock_news(symbol)
+    if not articles:
+        raise HTTPException(status_code=404, detail="No articles found for this symbol")
+
+    # Combine titles and descriptions for sentiment analysis
+    texts = [f"{a['title']} {a['description'] or ''}" for a in articles]
+    sentiments = batch_analyze_sentiment(tuple(texts))
+
+    # Aggregate sentiment counts
+    summary = {"positive": 0, "negative": 0, "neutral": 0}
+    for s in sentiments:
+        summary[s["label"]] += 1
+
+    return {
+        "symbol": symbol,
+        "summary": summary,
+        "articles": [
+            {**article, "sentiment": sentiments[i]} for i, article in enumerate(articles)
+        ],
+    }
