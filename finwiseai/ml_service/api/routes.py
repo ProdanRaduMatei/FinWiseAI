@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 import os
 from ml_service.sentiment.finbert_sentiment import batch_analyze_sentiment
 from ml_service.sentiment.news_fetcher import fetch_stock_news
+from ml_service.sentiment.vader_sentiment import analyze_sentiment_vader
 
 # Define router ONCE with prefix /ml
 router = APIRouter(prefix="/ml", tags=["LSTM"])
@@ -49,6 +50,35 @@ def sentiment_analysis(symbol: str):
     sentiments = batch_analyze_sentiment(tuple(texts))
 
     # Aggregate sentiment counts
+    summary = {"positive": 0, "negative": 0, "neutral": 0}
+    for s in sentiments:
+        summary[s["label"]] += 1
+
+    return {
+        "symbol": symbol,
+        "summary": summary,
+        "articles": [
+            {**article, "sentiment": sentiments[i]} for i, article in enumerate(articles)
+        ],
+    }
+
+
+vader_router = APIRouter(prefix="/ml", tags=["VADER"])
+
+@vader_router.get("/sentiment-vader/{symbol}")
+def sentiment_analysis_vader(symbol: str):
+    # Fetch news
+    articles = fetch_stock_news(symbol)
+    if not articles:
+        raise HTTPException(status_code=404, detail="No articles found for this symbol")
+
+    # Prepare text
+    texts = [f"{a['title']} {a['description'] or ''}" for a in articles]
+
+    # Analyze sentiment using VADER
+    sentiments = analyze_sentiment_vader(texts)
+
+    # Aggregate
     summary = {"positive": 0, "negative": 0, "neutral": 0}
     for s in sentiments:
         summary[s["label"]] += 1

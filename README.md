@@ -73,4 +73,11 @@ Backend runs at [http://localhost:9090](http://localhost:9090). Use Postman or t
 - **Register user:** `POST /api/register`
 - **Login:** `POST /api/login`
 - **Get user info:** `GET /api/user` (with `Authorization: Bearer <token>` header)
-- **ML prediction:** `GET /ml/predict` from ML API
+
+- **FinBERT sentiment analysis:** `GET /ml/sentiment/{symbol}`
+  - Fetches the latest stock-related news for the given ticker (e.g., `AAPL`) and analyzes sentiment using the FinBERT model.
+  - Returns aggregated sentiment counts (positive, neutral, negative) and per-article sentiment labels.
+
+- **VADER sentiment analysis:** `GET /ml/sentiment-vader/{symbol}`
+  - Fetches the same stock-related news and analyzes sentiment using the VADER model.
+  - Useful for cross-checking sentiment with a lexicon-based method.
