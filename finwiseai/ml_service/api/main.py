@@ -1,9 +1,8 @@
 from fastapi import FastAPI
-from ml_service.db import db
-from ml_service.api.routes import router as ml_router
-from ml_service.api.routes import vader_router
+from finwiseai.ml_service.api.routes import router as ml_router, vader_router
 
 app = FastAPI()
+
 app.include_router(ml_router)
 app.include_router(vader_router)
 

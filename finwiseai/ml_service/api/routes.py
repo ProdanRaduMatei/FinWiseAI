@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
-from ml_service.models.lstm_model import LSTMStockModel
+from finwiseai.ml_service.models.lstm_model import LSTMStockModel
 import torch
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import os
-from ml_service.sentiment.finbert_sentiment import batch_analyze_sentiment
-from ml_service.sentiment.news_fetcher import fetch_stock_news
-from ml_service.sentiment.vader_sentiment import analyze_sentiment_vader
+from finwiseai.ml_service.sentiment.finbert_sentiment import batch_analyze_sentiment
+from finwiseai.ml_service.sentiment.news_fetcher import fetch_stock_news
+from finwiseai.ml_service.sentiment.vader_sentiment import analyze_sentiment_vader
 
 # Define router ONCE with prefix /ml
 router = APIRouter(prefix="/ml", tags=["LSTM"])
@@ -38,7 +38,7 @@ def predict_next_close(csv_path: str = "sample_ohlcv_stock_data.csv"):
 
     return {"predicted_close_price": round(predicted_close, 2)}
 
-@router.get("/sentiment/{symbol}")
+@router.get("/sentiment/finbert/{symbol}")
 def sentiment_analysis(symbol: str):
     # Fetch news
     articles = fetch_stock_news(symbol)
@@ -65,7 +65,7 @@ def sentiment_analysis(symbol: str):
 
 vader_router = APIRouter(prefix="/ml", tags=["VADER"])
 
-@vader_router.get("/sentiment-vader/{symbol}")
+@vader_router.get("/sentiment/vader/{symbol}")
 def sentiment_analysis_vader(symbol: str):
     # Fetch news
     articles = fetch_stock_news(symbol)
@@ -76,9 +76,21 @@ def sentiment_analysis_vader(symbol: str):
     texts = [f"{a['title']} {a['description'] or ''}" for a in articles]
 
     # Analyze sentiment using VADER
-    sentiments = analyze_sentiment_vader(texts)
+    scores = analyze_sentiment_vader(texts)
 
-    # Aggregate
+    # Convert VADER scores to labels
+    sentiments = []
+    for s in scores:
+        compound = s["compound"]
+        if compound >= 0.05:
+            label = "positive"
+        elif compound <= -0.05:
+            label = "negative"
+        else:
+            label = "neutral"
+        sentiments.append({"label": label})
+
+    # Aggregate sentiment counts
     summary = {"positive": 0, "negative": 0, "neutral": 0}
     for s in sentiments:
         summary[s["label"]] += 1
