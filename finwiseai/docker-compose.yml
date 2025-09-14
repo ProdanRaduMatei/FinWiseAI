@@ -29,15 +29,25 @@ services:
       - "5050:5000"
     environment:
       - REDIS_URL=redis://redis:6379/0
+      - PYTHONPATH=/app
     depends_on:
       - redis
     env_file:
       - .env
 
   redis:
-    image: redis:7-alpine
+    image: redis:7
     ports:
       - "6379:6379"
+
+  celery-worker:
+    build: ./ml_service
+    working_dir: /app/finwiseai/ml_service
+    command: celery -A celery_worker.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+    environment:
+      - PYTHONPATH=/app
 
   mongo:
     image: mongo:6

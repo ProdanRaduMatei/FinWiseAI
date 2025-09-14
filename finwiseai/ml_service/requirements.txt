@@ -10,3 +10,4 @@ torch
 requests
 python-dotenv
 transformers
+celery[redis]
