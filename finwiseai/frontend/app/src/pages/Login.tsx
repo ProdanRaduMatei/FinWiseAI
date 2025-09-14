@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../services/auth';
 
 export default function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Backend call
-        console.log({ email, password });
-        navigate('/');
+        try {
+            const data = await login(email, password);
+            localStorage.setItem('token', data.access_token);
+            navigate('/');
+        } catch (err) {
+        }
     };
 
     return (

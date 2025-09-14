@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signup } from '../services/auth';
 
 export default function Signup() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Backend call
-        console.log({ email, password });
-        navigate('/');
+        try {
+            const data = await signup(email, password);
+            localStorage.setItem('token', data.access_token);
+            navigate('/');
+        } catch (err) {
+            // optionally, add proper error handling later
+        }
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/30">
